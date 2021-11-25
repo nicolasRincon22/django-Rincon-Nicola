@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-435)%y(=dgjl^g*ja5=_*n-3h(6*-n28*3$j1wh=4t!+mcm+u-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+
 ALLOWED_HOSTS = ['*']
 
 
@@ -57,8 +58,10 @@ ROOT_URLCONF = 'primo_progetto.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'prima_app/templates')],
-        'DIRS': [os.path.join(BASE_DIR, 'seconda_app/templates')],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'prima_app/templates'),
+            os.path.join(BASE_DIR, 'seconda_app/templates'),
+            os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
