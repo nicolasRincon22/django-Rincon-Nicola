@@ -1,0 +1,24 @@
+{%extends "base.html"%}
+
+{%block title%} {{block.super}} | Chi siamo {%endblock title%}
+
+{%block content%}
+    <ul>
+        {% for studente, valutazione in voti.items %}
+            <li>{{ studente }}</li>
+            <ul>
+            {% for a in valutazione %}
+                <li>
+                    {% for i in a %}
+                        {% if i != a|last %}
+                        <span>{{ i }},</span>
+                        {% else %}
+                        <span>{{ i }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </li>
+            {% endfor %}
+            </ul>
+        {% endfor %}
+    </ul>
+{%endblock content%}
