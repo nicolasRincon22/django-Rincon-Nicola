@@ -4,7 +4,7 @@ def view_b(request):
     context={
           'materie' : ["Matematica","Italiano","Inglese","Storia","Geografia"]
     }
-    return render(request, "view_b.htnl", context)
+    return render(request, "view_b.html", context)
     
 def view_c(request):
     context={
