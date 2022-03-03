@@ -101,15 +101,3 @@ if __name__ == '__main__':
         process.join()
     end_time=time.time()
     print("Total PROCESS time= ", end_time - start_time)
-© 2022 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Docs
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
