@@ -87,7 +87,7 @@ def ricevi_comandi3(sock_service,addr_client):
         #....
         #1.recuperare dal json il tabellone
        
-        
+        pass
     
         #2. restituire per ogni studente la media dei voti e somma delle assenze :
         
