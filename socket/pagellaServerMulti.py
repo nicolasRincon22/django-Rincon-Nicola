@@ -83,25 +83,45 @@ def ricevi_comandi2(sock_service,addr_client):
 
 #Versione 3
 def ricevi_comandi3(sock_service,addr_client):
-   
+    while True:
+        data=sock_service.recv(1024)
+        if not data: 
+            break
+        data=data.decode()
+        data=json.loads(data)
         #....
         #1.recuperare dal json il tabellone
-       
-        pass
-    
+        for studente in data:
+            # tabelloneMedia[studente] = studente
+            pagella = data[studente]
+            sommaVoti=0
+            sommaAssenze=0
+            for num, contenuto in enumerate(pagella):
+                sommaVoti+=int(contenuto[1])
+                sommaAssenze+=int(contenuto[2])
+            mediaVoti=sommaVoti/num
+            messaggio = {
+                'studente': studente,
+                'media': mediaVoti,
+                'assenze': sommaAssenze
+            }
         #2. restituire per ogni studente la media dei voti e somma delle assenze :
-        
+        messaggio=json.dumps(messaggio)
+        sock_service.sendall(messaggio.encode("UTF-8"))
+    
+    sock_service.close()
+
 
 
 def ricevi_connessioni(sock_listen):
     while True:
         sock_service, addr_client = sock_listen.accept()
         print("\nConnessione ricevuta da " + str(addr_client))
-        print("\nCreo un thread per servire le richieste ")
+        print("\nCreo un thread per  dover servire le richieste ")
         try:
             Thread(target=ricevi_comandi3,args=(sock_service,addr_client)).start()
         except:
-            print("il thread non si avvia")
+            print("il thread non si viene avviato")
             sock_listen.close()
         
 def avvia_server(SERVER_ADDRESS,SERVER_PORT):

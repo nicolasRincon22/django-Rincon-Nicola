@@ -24,7 +24,7 @@ def genera_richieste1(num,address,port):
         sys.exit()
 
     #1. Generazione casuale:
-    studenti=["Colombo","D'Alba","Di Lorenzo","Falcone","Ghidoli"]
+    studenti=["Nicolas","Edisson","Pietra","Peralta","Grolla"]
     materie=["Matematica","Italiano","Inglese","Storia","Geografia"]
     #   di uno studente (valori ammessi: 5 cognomi a caso tra cui il tuo cognome)
     numero = random.randint(0,4)
@@ -60,10 +60,18 @@ def genera_richieste1(num,address,port):
 
 #Versione 2 
 def genera_richieste2(num,address,port):
-    
+    try:
+        s=socket.socket()
+        s.connect((address,port))
+        print(f"\n{threading.current_thread().name} {num+1}) Connessione al server: {address}:{port}")
+    except:
+        print(f"{threading.current_thread().name} Qualcosa è andato storto, sto uscendo... \n")
+        sys.exit()
     #....
     #   1. Generazione casuale di uno studente(valori ammessi: 5 cognomi a caso scelti da una lista)
-  
+    studenti=["Nicolas","Edisson","Pietra","Peralta","Grolla"]
+    numero = random.randint(0,4)
+    studente=studenti[numero]
     #   Per ognuna delle materie ammesse: Matematica, Italiano, inglese, Storia e Geografia
     #   generazione di un voto (valori ammessi 1 ..10)
     #   e delle assenze (valori ammessi 1..5)
@@ -72,33 +80,81 @@ def genera_richieste2(num,address,port):
     #      "Antonio Barbera":[("matematica",8,1),("Italiano",6,1),("inglese",9.5,0),("Storia",8,2),("GEografia",8,1)],
     #      "Nicola Spina":[("matematica",7.5,2),("Italiano",6,2),("inglese",4,3),("Storia",8.5,2),("GEografia",8,2)]}
 
-   
+    studenteEPagella={"studente": studente, "pagella":[]}
+    materie=["Matematica","Italiano","Inglese","Storia","Geografia"]
+    for materia in materie:
+        voto=random.randint(1,10)
+        assenze=random.randint(1,5)
+        studenteEPagella["pagella"].append((materia, voto, assenze))
+    
     #   esempio: pagella={"Cognome1":[("Matematica",8,1), ("Italiano",6,1), ("Inglese",9.5,3), ("Storia",8,2), ("Geografia",8,1)]}
     #2. comporre il messaggio, inviarlo come json
-    
+    messaggio = {
+        'studente': studente,
+        'pagella': studenteEPagella["pagella"]
+    }
+    messaggio=json.dumps(messaggio)
+    print("Invio richiesta:", messaggio)
+    s.sendall(messaggio.encode("UTF-8"))
     #3  ricevere il risultato come json {'studente': 'Cognome1', 'media': 8.0, 'assenze': 8}
-   
+    data=s.recv(1024)
+    data=json.loads(data)
+    if not data:
+        print(f"{threading.current_thread().name}: Server non risponde. Exit")
+    else:
+        print("Lo studente", data["studente"], "ha la media di", data["mediaVoti"], "e ha  un totale di assenze di", data["sommaAssenze"])
+
 #Versione 3
 def genera_richieste3(num,address,port):
     #....
-   
+    try:
+        s=socket.socket()
+        s.connect((address,port))
+        print(f"\n{threading.current_thread().name} {num+1}) Connessione al server: {address}:{port}")
+    except:
+        print(f"{threading.current_thread().name} Qualcosa è andato storto, sto uscendo... \n")
+        sys.exit()
     #   1. Per ognuno degli studenti ammessi: 5 cognomi a caso scelti da una lista
-    
+    tabellone = {}
+    studenti=["Nicolas","Edisson","Pietra","Peralta","Grolla"]
+    materie=["Matematica","Italiano","Inglese","Storia","Geografia"]
+
+    for studente in studenti:
+        votiEAssenze = []
+        for materia in materie:
+            voto = random.randint(1,10)
+            assenze = random.randint(1,5)
+            votiEAssenze.append((materia, voto, assenze))
+        tabellone[studente] = votiEAssenze
     #   Per ognuna delle materie ammesse: Matematica, Italiano, inglese, Storia e Geografia)
     #   generazione di un voto (valori ammessi 1 ..10)
     #   e delle assenze (valori ammessi 1..5) 
     #   esempio: tabellone={"Cognome1":[("Matematica",8,1), ("Italiano",6,1), ("Inglese",9,3), ("Storia",8,2), ("Geografia",8,1)],
     #                       "Cognome2":[("Matematica",7,2), ("Italiano",5,3), ("Inglese",4,12), ("Storia",5,2), ("Geografia",4,1)],
     #                        .....}
-    
+    messaggio = {
+        'tabellone': tabellone
+    }
+    messaggio=json.dumps(messaggio)
+    print("Invio richiesta:", messaggio)
+    s.sendall(messaggio.encode("UTF-8"))
     #2. comporre il messaggio, inviarlo come json
     #3  ricevere il risultato come json e stampare l'output come indicato in CONSOLE CLIENT V.3
-    
+    data=s.recv(1024)
+    data=json.loads(data)
+    if not data:
+        print(f"{threading.current_thread().name}:  Il Server non risponde. Exit")
+    else:
+        for e in data:
+            print("Lo studente ", {e['studente']}, "ha la media di ", {e['media']}, "e ha un totale di assenze di ", {e['assenze']})
+
 if __name__ == '__main__':
     start_time=time.time()
     # PUNTO A) ciclo per chiamare NUM_WORKERS volte la funzione genera richieste (1,2,3)
     # alla quale passo i parametri (num,SERVER_ADDRESS, SERVER_PORT)
-    
+    for num in range(NUM_WORKERS):
+        genera_richieste3(num, SERVER_ADDRESS, SERVER_PORT)
+    end_time=time.time()
     print("Total SERIAL time=", end_time - start_time)
     print("FINE PUNTO 1")
     start_time=time.time()
@@ -109,7 +165,12 @@ if __name__ == '__main__':
     for num in range(NUM_WORKERS): #NUM_WORKERS volte
         thread = threading.Thread(target=genera_richieste3, args=(num, SERVER_ADDRESS, SERVER_PORT)) #creo il thread che svolge genera_richieste, con come argomenti args
         # ad ogni iterazione appendo il thread creato alla lista threads
-     
+        threads.append(thread)
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    end_time=time.time()
     print("Total THREADS time= ", end_time - start_time)
     print("FINE PUNTO 2")
 
