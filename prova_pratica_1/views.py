@@ -1,4 +1,7 @@
+import json
+from urllib import response
 from django.shortcuts import render
+from django.http import JsonResponse
 
 def view_b(request):
     context={
@@ -14,3 +17,9 @@ def view_c(request):
     }
     return render(request, "view_c.html", context)
 # Create your views here.
+def view_api(request):
+    context={
+          'materie' : ["Matematica","Italiano","Inglese","Storia","Geografia"]
+    }
+    response=JsonResponse(context)
+    return response
